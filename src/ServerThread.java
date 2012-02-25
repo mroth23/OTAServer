@@ -25,6 +25,16 @@ public class ServerThread extends Thread
 		start();
 	}
 
+	public static void main(String[] args){
+		String[] splitted = "lecturer;15:00:00;16:00:00;2012-02-22;https://cate.doc.ic.ac.uk".split(";");
+		Time startTime = Time.valueOf(splitted[1]);
+		Time endTime = Time.valueOf(splitted[2]);
+		Date date = Date.valueOf(splitted[3]);
+		String location = splitted[4];
+		String link = splitted[5];
+		insertIntoDatabase(startTime, endTime, date, location, link);
+	}
+	
 	// This runs in a separate thread when start() is called in the
 	// constructor.
 	public void run() {
@@ -75,7 +85,6 @@ public class ServerThread extends Thread
 			Statement stmt = con.createStatement();
 		    stmt.executeQuery("INSERT INTO linksTable (date, startTime, endTime, location, link) VALUES "+
 			"('" + date + d + start + d + end + d + location + d + link + "')") ;
-	
 		}catch(Exception e){
 			e.printStackTrace();
 		}

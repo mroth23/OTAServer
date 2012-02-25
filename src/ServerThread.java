@@ -68,12 +68,25 @@ public class ServerThread extends Thread
 		}
 	}
 	
+	private void insertIntoDatabase(Time start, Time end, Date date, String location, String link){
+		try{
+			String d = "', '"; //delimiter
+			Connection con = DriverManager.getConnection("jdbc:myDriver:linksDB", username,password);
+			Statement stmt = con.createStatement();
+		    stmt.executeQuery("INSERT INTO linksTable (date, startTime, endTime, location, link) VALUES "+
+			"('" + date + d + start + d + end + d + location + d + link + "')") ;
+	
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
 	private String getLink(Date date, Time time, String location){
 		String link = "The link";
 		try{
-			Connection con = DriverManager.getConnection("jdbc:myDriver:myDatabase", username,password);
+			Connection con = DriverManager.getConnection("jdbc:myDriver:linksDB", username,password);
 			Statement stmt = con.createStatement();
-		    ResultSet rs = stmt.executeQuery("SELECT link FROM linkTable WHERE date="+date+" AND startTime<"+time+" AND endTime>"+time+" AND location="+location);
+		    ResultSet rs = stmt.executeQuery("SELECT link FROM linksTable WHERE date="+date+" AND startTime<"+time+" AND endTime>"+time+" AND location="+location);
 			    while (rs.next()) {
 			        link = rs.getString("link");
 			    }

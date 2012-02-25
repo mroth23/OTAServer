@@ -44,6 +44,13 @@ public class ServerThread extends Thread
 					Time time = Time.valueOf(splitted[2]);
 					String location = splitted[3];
 					dout.writeUTF(getLink(date, time, location));
+				}else if(splitted[0].equals("lecturer")){
+					Time startTime = Time.valueOf(splitted[1]);
+					Time endTime = Time.valueOf(splitted[2]);
+					Date date = Date.valueOf(splitted[3]);
+					String location = splitted[4];
+					String link = splitted[5];
+					
 				}
 			}
 			// ... and have the server send it to all clients

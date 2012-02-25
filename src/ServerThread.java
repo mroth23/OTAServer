@@ -1,5 +1,11 @@
 import java.io.*;
 import java.net.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.Time;
 
 public class ServerThread extends Thread
 {
@@ -7,6 +13,8 @@ public class ServerThread extends Thread
 	private Server server;
 	// The Socket connected to our client
 	private Socket socket;
+	private static final String username = "";
+	private static final String password = "";
 
 	// Constructor.
 	public ServerThread( Server server, Socket socket) {
@@ -23,16 +31,23 @@ public class ServerThread extends Thread
 		try {
 			// Create a DataInputStream for communication; the client
 			// is using a DataOutputStream to write to us
-			DataInputStream din = new DataInputStream( socket.getInputStream() );
-			// Over and over, forever ...
+			DataInputStream din = new DataInputStream(socket.getInputStream());
 			while (true) {
-			// ... read the next message ...
 			String message = din.readUTF();
-			// ... tell the world ...
 			System.out.println("Sending message");
-
+			String[] splitted = message.split(";");
+			if(splitted.length!=0){
+				if(splitted[0].equals("client")){
+					//Its an app wanting the link.
+					DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
+					Date date = Date.valueOf(splitted[1]);
+					Time time = Time.valueOf(splitted[2]);
+					String location = splitted[3];
+					dout.writeUTF(getLink(date, time, location));
+				}
+			}
 			// ... and have the server send it to all clients
-			server.sendToAll( message );
+			//server.sendToAll( message );
 			}
 		} catch( EOFException ie ) {
 			// This doesn't need an error message
@@ -44,5 +59,20 @@ public class ServerThread extends Thread
 			// so have the server dealing with it
 			server.removeConnection(socket);
 		}
+	}
+	
+	private String getLink(Date date, Time time, String location){
+		String link = "The link";
+		try{
+			Connection con = DriverManager.getConnection("jdbc:myDriver:myDatabase", username,password);
+			Statement stmt = con.createStatement();
+		    ResultSet rs = stmt.executeQuery("SELECT link FROM linkTable WHERE date="+date+" AND startTime<"+time+" AND endTime>"+time+" AND location="+location);
+			    while (rs.next()) {
+			        link = rs.getString("link");
+			    }
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return link;
 	}
 }
